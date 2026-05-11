@@ -1,114 +1,109 @@
-# F1 Race Predictor — ML Project
+F1 Race Predictor — ML Project 
 
-A machine-learning pipeline to predict **F1 race podium finishes** using
-driver skill, qualifying position, constructor performance, weather, tyre strategy,
-and rolling historical stats.
+Machine-learning pipeline to predict **F1 race podium finishes** based on driver skill, qualifying position, constructor performance, weather conditions, tyre strategy, and rolling historical statistics.
 
----
+--- 
 
-## 📁 Project Structure
+## 📁 Project Layout 
 
-```
-f1_predictor/
-├── f1_predictor.py   ← Main pipeline (data → features → train → predict)
-├── f1_eda.py         ← EDA & visualization plots
-├── requirements.txt  ← Python dependencies
-└── README.md         ← This file
-```
+```python 
+f1_predictor/ 
+├── f1_predictor.py ← Data → Features → Train model → Predict 
+├── f1_eda.py ← EDA & visualization plots 
+├── requirements.txt ← Python dependencies 
+└── README.md ← You are here! 
+``` 
 
----
+--- 
 
-## 🚀 Quick Start
+## 🚀 Getting Started 
 
-```bash
-# 1. Install dependencies
-pip install -r requirements.txt
+```bash 
+# 1. Install dependencies 
+pip install -r requirements.txt 
 
-# 2. Train the model and run predictions
-python f1_predictor.py
+# 2. Run the main pipeline to train model & make predictions
+python f1_predictor.py 
 
-# 3. (Optional) Run EDA visualizations
-python f1_eda.py
-```
+# 3. (Optional) Make EDA plots from `f1_eda.py` 
+python f1_eda.py 
+``` 
 
----
+--- 
 
-## 🏗️ Pipeline Overview
+## 🏗️ Pipeline Stages 
 
-### 1. Data Generation / Loading
-- Synthetic dataset (500 races × 10 drivers)
-- Swap `generate_f1_dataset()` with real data from the **Ergast API** or **FastF1**
+### 1. Data Generation / Loading 
 
-### 2. Feature Engineering
-| Feature | Description |
-|---|---|
-| `grid_position` | Qualifying start position |
-| `driver_skill` | Normalized driver rating |
-| `car_performance` | Constructor car rating |
-| `avg_finish_last5` | Rolling 5-race average finish |
-| `podium_rate_last10` | Rolling 10-race podium % |
-| `weather_enc` | Encoded weather condition |
-| `circuit_enc` | Encoded circuit |
-| `tyre_enc` | Encoded tyre strategy |
-| `pit_stops` | Number of pit stops |
-| `dnf` | Binary: Did Not Finish flag |
+- Synthetic dataset of 500 races with 10 drivers each
+- Swap out `generate_f1_dataset()` to use live data: 
+- [`Ergast API`](#ergast-api) for race timing results 
+- [`FastF1`](#fastf1-python-package) for live telemetry & timing 
 
-### 3. Models
-- **Gradient Boosting** (GBM) — primary model
-- **Random Forest** — ensemble comparison
-- 5-fold cross-validation for both
-- Best model selected automatically
+### 2. Feature Engineering 
 
-### 4. Prediction
-- Takes `circuit`, `weather`, `season` as inputs
-- Outputs ranked podium probability for all drivers
+| Feature | Description | 
+|----------------|-----------------------------------------| 
+| `grid_position`| Driver's qualifying start position | 
+| `driver_skill` | Driver's skill rating (normalized) | 
+| `car_performance` | Constructor's car rating | 
+| `avg_finish_last5` | Driver's average finishing position for last 5 races |
+| `podium_rate_last10` | Driver's podium percentage for last 10 races |
+| `weather_enc` | One-hot encoded weather condition | 
+| `circuit_enc` | One-hot encoded race circuit | 
+| `tyre_enc` | One-hot encoded tyre strategy | 
+| `pit_stops` | Planned number of pit stops | 
+| `dnf` | Binary flag indicating if driver DNF'd | 
 
----
+### 3. Models 
 
-## 🔌 Real Data Sources
+- **Gradient Boosting** (GBM) classifier — primary model 
+- **Random Forest** classifier — benchmark model 
+- Use 5-fold cross-validation to evaluate both models 
+- Automatically select best model 
 
-Replace the synthetic generator with live data:
+### 4. Prediction 
 
-```python
-# Option A: Ergast REST API (free)
-import requests
-url = "http://ergast.com/api/f1/2024/results.json?limit=500"
-data = requests.get(url).json()
+- Accepts 3 arguments: `circuit`, `weather`, `season` 
+- Returns ranked probability of drivers finishing on podium
 
-# Option B: FastF1 (telemetry + timing)
-import fastf1
-session = fastf1.get_session(2024, 'Monza', 'R')
-session.load()
-laps = session.laps
-```
+--- 
 
----
+## 🔌 Replaceable Data Sources 
 
-## 📊 Expected Output
+Replace `generate_f1_dataset()` with live data instead: 
 
-```
-============================
-  F1 RACE PREDICTOR — MODEL TRAINING
-============================
-  [GBM]  Test Accuracy : 0.8340
-  [GBM]  CV Accuracy   : 0.8212 ± 0.0143
-  ✅ Best Model: Gradient Boosting
 
-  🏁 RACE PREDICTION: MONZA (2025)
-  Pos   Driver          Grid     Podium Prob
-  ──────────────────────────────────────────
-  1     Verstappen      3        74.2%  ██████████████
-  2     Leclerc         1        68.5%  █████████████
-  3     Hamilton        2        61.3%  ████████████
-  ...
-```
+```python 
+# Option A: Ergast REST API (free) 
+>>> import requests 
+>>> url = "http://ergast.com/api/f1/2024/results.json?limit=500" 
+>>> data = requests.get(url).json() 
 
----
+# Option B: FastF1 Python package (telemetry + timing) 
+>>> import fastf1 
+>>> session = fastf1.get_session(2024, 'Monza', 'R') 
+>>> session.load() 
+>>> laps = session.laps 
+``` 
 
-## 🛠️ Extend the Project
+--- 
 
-- [ ] Add **qualifying lap time** as a feature
-- [ ] Include **championship standings** pressure
-- [ ] Use **SHAP** for explainability
-- [ ] Build a **Streamlit** dashboard for interactive predictions
-- [ ] Add **hyperparameter tuning** with Optuna
+### 📊 Example Terminal Output 
+
+``` 
+============================ 
+F1 RACE PREDICTOR — MODEL TRAINING 
+============================ 
+[GBM] Test Accuracy : 0.8340 
+[GBM] CV Accuracy : 0.8212 ± 0.0143 
+✅ Best Model: Gradient Boosting 
+
+🏁 RACE PREDICTION: MONZA (2025) 
+Pos Driver Grid Podium Prob 
+────────────────────────────────────────── 
+1 Verstappen 3 74.2% ██████████████ 
+2 Leclerc 1 68.5% █████████████ 
+3 Hamilton 2 61.3% ████████████ 
+... 
+``` 
